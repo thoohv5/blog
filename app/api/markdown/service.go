@@ -49,6 +49,9 @@ func (s *service) Markdown(req *Req) (*Resp, error) {
 	}
 	list := make([]string, len(files))
 	for _, f := range files {
+		if !strings.HasSuffix(f.Name, ".md") {
+			continue
+		}
 		list = append(list, fmt.Sprintf("%s.html", strings.ReplaceAll(strings.Trim(strings.Split(f.Name, s.markdownDir)[1], "/.md"), "/", "-")))
 	}
 	resp.Name = fileName
