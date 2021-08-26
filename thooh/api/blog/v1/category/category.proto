@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package blog.v1.category;
+
+import "google/api/annotations.proto";
+
+option go_package = "thooh/api/blog/v1/category";
+
+// 类目.
+service Category {
+    // 创建.
+    rpc Create (CreateReq) returns (CreateResp)  {
+        option (google.api.http) = {
+            post: "/blog/v1/category/create"
+            body: "*"
+        };
+    }
+    // 列表.
+    rpc List (ListReq) returns (ListResp)  {
+        option (google.api.http) = {
+            get: "/blog/v1/category/list"
+        };
+    }
+}
+
+// 创建 请求.
+message CreateReq {
+    // 唯一标识
+    string label = 2;
+    // 名称
+    string name = 3;
+}
+
+// 创建 返回值.
+message CreateResp {
+}
+
+// 列表 请求.
+message ListReq {
+}
+
+// 列表 返回值.
+message ListResp {
+    repeated Entity list = 1;
+}
+
+// 类目实体.
+message Entity {
+    // 唯一标识
+    string label = 2;
+    // 名称
+    string name = 3;
+}

@@ -1,0 +1,288 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/blog/v1/article/article.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Article"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/blog/v1/article/create": {
+      "post": {
+        "summary": "创建.",
+        "operationId": "Article_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1articleCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1articleCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "Article"
+        ]
+      }
+    },
+    "/blog/v1/article/detail": {
+      "get": {
+        "summary": "详情.",
+        "operationId": "Article_Detail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/articleDetailResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "description": "唯一标识.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Article"
+        ]
+      }
+    },
+    "/blog/v1/article/list": {
+      "get": {
+        "summary": "列表.",
+        "operationId": "Article_List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1articleListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "start",
+            "description": "数据开始位置.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "返回数据条数.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "keyword",
+            "description": "搜索字段.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Article"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "articleArticleEntity": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "唯一标识"
+        },
+        "label": {
+          "type": "string",
+          "title": "类目标识"
+        },
+        "name": {
+          "type": "string",
+          "title": "标题"
+        },
+        "desc": {
+          "type": "string",
+          "title": "描述"
+        },
+        "content": {
+          "type": "string",
+          "title": "内容"
+        },
+        "author": {
+          "type": "string",
+          "title": "作者"
+        },
+        "md": {
+          "type": "string",
+          "title": "markdown"
+        },
+        "read": {
+          "type": "integer",
+          "format": "int32",
+          "title": "阅读数"
+        },
+        "like": {
+          "type": "integer",
+          "format": "int32",
+          "title": "like"
+        }
+      },
+      "description": "文章实体."
+    },
+    "articleDetailResp": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "$ref": "#/definitions/articleArticleEntity"
+        }
+      },
+      "description": "详情 返回值."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1articleCreateReq": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "唯一标识"
+        },
+        "label": {
+          "type": "string",
+          "title": "类目标识"
+        },
+        "name": {
+          "type": "string",
+          "title": "标题"
+        },
+        "desc": {
+          "type": "string",
+          "title": "描述"
+        },
+        "content": {
+          "type": "string",
+          "title": "内容"
+        },
+        "author": {
+          "type": "string",
+          "title": "作者"
+        },
+        "md": {
+          "type": "string",
+          "title": "markdown"
+        },
+        "read": {
+          "type": "integer",
+          "format": "int32",
+          "title": "阅读数"
+        },
+        "like": {
+          "type": "integer",
+          "format": "int32",
+          "title": "like"
+        }
+      },
+      "description": "创建 请求."
+    },
+    "v1articleCreateResp": {
+      "type": "object",
+      "description": "创建 返回值."
+    },
+    "v1articleListResp": {
+      "type": "object",
+      "properties": {
+        "hasMore": {
+          "type": "boolean",
+          "title": "是否有下一页"
+        },
+        "start": {
+          "type": "integer",
+          "format": "int32",
+          "title": "下一页start开始"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/articleArticleEntity"
+          },
+          "title": "文章列表"
+        }
+      },
+      "description": "列表 返回值."
+    }
+  }
+}

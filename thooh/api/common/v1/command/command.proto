@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package common.v1.command;
+
+import "google/api/annotations.proto";
+
+option go_package = "thooh/api/common/v1/command";
+
+// 命令.
+service Command {
+    // 执行.
+    rpc Execute (ExecuteReq) returns (ExecuteResp)  {
+        option (google.api.http) = {
+            get: "/common/v1/command/{command}"
+        };
+    }
+}
+
+// 执行 请求.
+message ExecuteReq {
+    // 命令名称
+    string command = 1;
+}
+
+// 执行 返回值.
+message ExecuteResp {
+}

@@ -1,0 +1,152 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/blog/v1/category/category.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Category"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/blog/v1/category/create": {
+      "post": {
+        "summary": "创建.",
+        "operationId": "Category_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1categoryCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1categoryCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/blog/v1/category/list": {
+      "get": {
+        "summary": "列表.",
+        "operationId": "Category_List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1categoryListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Category"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "categoryEntity": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "title": "唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "title": "名称"
+        }
+      },
+      "description": "类目实体."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1categoryCreateReq": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "title": "唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "title": "名称"
+        }
+      },
+      "description": "创建 请求."
+    },
+    "v1categoryCreateResp": {
+      "type": "object",
+      "description": "创建 返回值."
+    },
+    "v1categoryListResp": {
+      "type": "object",
+      "properties": {
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/categoryEntity"
+          }
+        }
+      },
+      "description": "列表 返回值."
+    }
+  }
+}

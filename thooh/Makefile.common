@@ -1,0 +1,249 @@
+GO				:= go
+PROTOC			:= protoc
+FIRST_GOPATH	:= $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
+PREFIX			?= $(shell pwd)
+
+
+INTERNAL_PROTO_FILES 	:= $(shell find internal -name *.proto)
+API_PROTO_FILES         := $(shell find api -name *.proto)
+
+SDKDIR      			:= $(FIRST_GOPATH)/src
+SWAGGERDIR  			:= $(PREFIX)/swagger
+
+GOLANGCI_LINT			?= $(FIRST_GOPATH)/bin/golangci-lint
+GOLANGCI_LINT_OPTS		?=
+GOCOV                   ?= $(FIRST_GOPATH)/bin/gocov
+GOCOV_HTML              ?= $(FIRST_GOPATH)/bin/gocov-html
+GOIMPORTS               ?= $(FIRST_GOPATH)/bin/goimports
+GOTESTSUM				?= $(FIRST_GOPATH)/bin/gotestsum
+GO_STRINGER             ?= $(FIRST_GOPATH)/bin/stringer
+
+
+KRATOS           		?= $(FIRST_GOPATH)/bin/kratos
+
+PROTOC_GEN_GO           ?= $(FIRST_GOPATH)/bin/protoc-gen-go
+PROTOC_GEN_GO_GRPC      ?= $(FIRST_GOPATH)/bin/protoc-gen-go-grpc
+PROTOC_GEN_GO_HTTP      ?= $(FIRST_GOPATH)/bin/protoc-gen-go-http
+PROTOC_GEN_GO_ERRORS    ?= $(FIRST_GOPATH)/bin/protoc-gen-go-errors
+PROTOC_GEN_OPENAPIV2    ?= $(FIRST_GOPATH)/bin/protoc-gen-openapiv2
+PROTOC_GEN_VALIDATE     ?= $(FIRST_GOPATH)/bin/protoc-gen-validate
+
+
+
+pkgs := ./...
+test-pkgs = $(shell go list ./... | grep -v /vendor/)
+gofmt-files = $(shell go list -f '{{.Dir}}' ./... | grep -v /vendor/)
+
+GOTEST_DIR := test-results
+test-flags := -v
+ifeq ($(GOHOSTARCH),amd64)
+	ifeq ($(GOHOSTOS),$(filter $(GOHOSTOS),linux freebsd darwin windows))
+		# Only supported on amd64
+		test-flags := $(test-flags) -race
+	endif
+endif
+
+$(GOLANGCI_LINT): go.sum
+	@echo "> installing golangci-lint"
+	@$(GO) install "github.com/golangci/golangci-lint/cmd/golangci-lint"
+
+$(GOCOV): go.sum
+	@echo "> installing gocov"
+	@$(GO) install "github.com/axw/gocov/gocov"
+
+$(GOCOV_HTML): go.sum
+	@echo "> installing gocov-html"
+	@$(GO) install "github.com/matm/gocov-html"
+
+$(GOIMPORTS): go.sum
+	@echo "> installing goimports"
+	@$(GO) install "golang.org/x/tools/cmd/goimports"
+
+$(GOTESTSUM): go.sum
+	@echo "> installing gotestsum"
+	@$(GO) install "gotest.tools/gotestsum"
+
+$(PROTOC_GEN_SWAGGER): go.sum
+	@echo "> installing protoc-gen-swagger"
+	@$(GO) install "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger"
+
+$(GO_STRINGER): go.sum
+	@echo "> installing stringer"
+	@$(GO) install "golang.org/x/tools/cmd/stringer"
+
+
+$(KRATOS): go.sum
+	@echo "> installing kratos"
+	@$(GO) install "github.com/go-kratos/kratos/cmd/kratos/v2"
+
+$(PROTOC_GEN_GO): go.sum
+	@echo "> installing protoc-gen-go"
+	@$(GO) install "google.golang.org/protobuf/cmd/protoc-gen-go"
+
+$(PROTOC_GEN_GO_GRPC): go.sum
+	@echo "> installing protoc-gen-go-grpc"
+	@$(GO) install "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
+
+$(PROTOC_GEN_GO_HTTP): go.sum
+	@echo "> installing protoc-gen-go"
+	@$(GO) install "github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2"
+
+$(PROTOC_GEN_GO_ERRORS): go.sum
+	@echo "> installing protoc-gen-go"
+	@$(GO) install "github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2"
+
+$(PROTOC_GEN_OPENAPIV2): go.sum
+	@echo "> installing protoc-gen-openapiv2"
+	@$(GO) install "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
+
+$(PROTOC_GEN_VALIDATE): go.sum
+	@echo "> installing protoc-gen-validate"
+	@$(GO) install "github.com/envoyproxy/protoc-gen-validate"
+
+
+# This rule is used to forward a target like "test" to "common-test".  This
+# allows a new "build" target to be defined in a Makefile which includes this
+# one and override "common-build" without override warnings.
+%: common-% ;
+
+.PHONY: common-all
+common-all: lint test
+
+
+.PHONY: common-setup
+common-setup:
+	@echo ">> Setup environments"
+	@$(GO) env -w GOPRIVATE=gitee.com
+	@$(GO) env -w GOPROXY=https://goproxy.cn,direct
+
+.PHONY: common-help
+common-help:
+	@echo ''
+	@echo 'Usage:'
+	@echo ' make [target]'
+	@echo ''
+	@echo 'Targets:'
+	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+	helpMessage = match(lastLine, /^# (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
+			printf "\033[36m%-22s\033[0m %s\n", helpCommand,helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+
+.DEFAULT_GOAL := help
+
+
+.PHONY: common-test
+common-test:
+	@echo ">> running tests"
+	@$(GO) test $(test-flags) $(test-pkgs)
+
+
+$(GOTEST_DIR):
+	@mkdir -p $@
+
+
+coverprofile-txt = $(GOTEST_DIR)/coverage.txt
+coverprofile-json = $(GOTEST_DIR)/coverage.json
+coverreport-html = $(GOTEST_DIR)/coverage.html
+cover-flags = -coverprofile=$(coverprofile-txt) -covermode=atomic
+
+
+.PHONY: common-cover
+common-cover: $(GOTESTSUM) $(GOCOV) $(GOCOV_HTML) | $(GOTEST_DIR)
+	@echo ">> running test coverage"
+	@$(GOTESTSUM) --format testname --junitfile $(GOTEST_DIR)/unit-tests.xml -- \
+			$(test-flags) $(cover-flags) $(test-pkgs) && \
+		$(GOCOV) convert $(coverprofile-txt) >$(coverprofile-json) && \
+		$(GOCOV) report $(coverprofile-json) && \
+		$(GOCOV_HTML) $(GOTEST_DIR)/coverage.json >$(GOTEST_DIR)/coverage.html
+
+
+.PHONY: common-lint
+common-lint: $(GOLANGCI_LINT)
+	@echo ">> linting code"
+# 'go list' needs to be executed before staticcheck to prepopulate the modules cache.
+# Otherwise staticcheck might fail randomly for some reason not yet explained.
+	@$(GO) list -e -compiled -test=true -export=false -deps=true -find=false -tags= -- ./... > /dev/null
+	@$(GOLANGCI_LINT) run $(GOLANGCI_LINT_OPTS) $(pkgs)
+
+.PHONY: common-format
+common-format: $(GOIMPORTS)
+	@echo ">> formatting code"
+	@$(GOIMPORTS) -local "git.medlinker.com" -w $(gofmt-files)
+
+.PHONY: common-gen
+common-gen:
+	@$(MAKE) common-http
+	@$(MAKE) common-grpc
+	@$(MAKE) common-proto
+	@$(MAKE) common-error
+	@$(MAKE) common-validate
+	@$(MAKE) common-swagger
+
+.PHONY: common-http
+common-http: $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_HTTP)
+	@echo ">> gen http"
+	@$(PROTOC) --proto_path=. \
+		   --proto_path=$(FIRST_GOPATH)/src \
+		   --proto_path=$(PREFIX)/third_party \
+		   --go_out=paths=source_relative:. \
+		   --go-http_out=paths=source_relative:. \
+		   $(API_PROTO_FILES)
+
+.PHONY: common-grpc
+common-grpc: $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_GRPC)
+	@echo ">> gen grpc"
+	@$(PROTOC) --proto_path=. \
+		   --proto_path=$(FIRST_GOPATH)/src \
+		   --proto_path=$(PREFIX)/third_party \
+		   --go_out=paths=source_relative:. \
+		   --go-grpc_out=paths=source_relative:. \
+		   $(API_PROTO_FILES)
+
+.PHONY: common-proto
+common-proto: $(PROTOC_GEN_GO) $(PROTOC_GEN_VALIDATE)
+	@echo ">> gen proto"
+	@$(PROTOC) --proto_path=. \
+		   --proto_path=$(FIRST_GOPATH)/src \
+		   --proto_path=$(PREFIX)/third_party \
+		   --go_out=paths=source_relative:. \
+		   $(INTERNAL_PROTO_FILES)
+
+.PHONY: common-error
+common-error: $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_ERRORS)
+	@echo ">> gen error"
+	@$(PROTOC) --proto_path=. \
+		   --proto_path=$(FIRST_GOPATH)/src \
+		   --proto_path=$(PREFIX)/third_party \
+		   --go_out=paths=source_relative:. \
+		   --go-errors_out=paths=source_relative:. \
+		   $(API_PROTO_FILES)
+
+.PHONY: common-validate
+common-validate: $(PROTOC_GEN_GO) $(PROTOC_GEN_VALIDATE)
+	@echo ">> gen validate"
+	@$(PROTOC) --proto_path=. \
+		   --proto_path=$(FIRST_GOPATH)/src \
+		   --proto_path=$(PREFIX)/third_party \
+		   --go_out=paths=source_relative:. \
+		   --validate_out=lang=go,paths=source_relative:. \
+		   $(API_PROTO_FILES)
+
+.PHONY: common-swagger
+common-swagger: $(PROTOC_GEN_OPENAPIV2)
+	@echo ">> gen swagger"
+	@$(PROTOC) --proto_path=. \
+		--proto_path=$(FIRST_GOPATH)/src \
+		--proto_path=$(PREFIX)/third_party \
+		--openapiv2_out . \
+		--openapiv2_opt logtostderr=true \
+		$(API_PROTO_FILES)
+
+.PHONY: common-service
+common-service: $(KRATOS)
+	@echo ">> gen service"
+	@$(foreach file, $(API_PROTO_FILES), $(KRATOS) proto server $(file)  -t internal/service;)

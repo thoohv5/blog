@@ -1,0 +1,57 @@
+version: "3"
+
+networks:
+  network:
+    ipam:
+      driver: default
+      config:
+        - subnet: '177.7.0.0/16'
+
+services:
+  web:
+    build:
+      context: web
+    container_name: web
+    volumes:
+      - ${WEB_LOG_DIR}:/var/log/nginx/:rw
+    ports:
+      - "${WEB_PORT}:443"
+    restart: always
+    depends_on:
+      - server
+    command: [ 'nginx-debug', '-g', 'daemon off;' ]
+    networks:
+      network:
+        ipv4_address: 177.7.0.11
+
+  server:
+    build:
+      context: thooh
+    container_name: server
+    volumes:
+      - ${CONF_PATH}:/data/conf
+      - ${DOC_PATH}:/data/doc
+    restart: always
+    ports:
+      - "${HTTP_PORT}:8000"
+      - "${GRPC_PORT}:9000"
+    depends_on:
+      - redis
+    links:
+      - redis
+    networks:
+      network:
+        ipv4_address: 177.7.0.13
+
+  redis:
+    build:
+      context: redis
+    container_name: redis
+    volumes:
+      - ${REDIS_DATA_PATH}/redis:/data
+      - ${REDIS_LOG_PATH}:/var/log/redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      network:
+        ipv4_address: 177.7.0.14

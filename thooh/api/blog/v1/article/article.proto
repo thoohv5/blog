@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package blog.v1.article;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "thooh/api/blog/v1/article";
+
+// 文章.
+service Article {
+    // 创建.
+    rpc Create (CreateReq) returns (CreateResp)  {
+        option (google.api.http) = {
+            post: "/blog/v1/article/create"
+            body: "*"
+        };
+    }
+    // 列表.
+    rpc List (ListReq) returns (ListResp)  {
+        option (google.api.http) = {
+            get: "/blog/v1/article/list"
+        };
+    }
+    // 详情.
+    rpc Detail (DetailReq) returns (DetailResp)  {
+        option (google.api.http) = {
+            get: "/blog/v1/article/detail"
+        };
+    }
+}
+
+// 创建 请求.
+message CreateReq {
+    // 唯一标识
+    string code = 2;
+    // 类目标识
+    string label = 3;
+    // 标题
+    string name = 4;
+    // 描述
+    string desc = 5;
+    // 内容
+    string content = 6;
+    // 作者
+    string author = 7;
+    // markdown
+    string md = 10;
+    // 阅读数
+    int32 read = 14;
+    // like
+    int32 like = 15;
+}
+
+// 创建 返回值.
+message CreateResp {
+}
+
+// 列表 请求.
+message ListReq {
+    // 数据开始位置
+    int32 start = 1[(validate.rules).int32 = { gte:0 }];
+    // 返回数据条数
+    int32 limit = 2[(validate.rules).int32 = { gt:0 }];
+    // 搜索字段
+    string keyword = 5;
+}
+
+// 列表 返回值.
+message ListResp {
+    // 是否有下一页
+    bool has_more = 1;
+    // 下一页start开始
+    int32 start = 2;
+    // 文章列表
+    repeated ArticleEntity list = 4;
+}
+
+// 详情 请求.
+message DetailReq {
+    // 唯一标识
+    string code = 1;
+}
+
+// 详情 返回值.
+message DetailResp {
+    ArticleEntity entity = 1;
+}
+
+// 文章实体.
+message ArticleEntity {
+    // 唯一标识
+    string code = 2;
+    // 类目标识
+    string label = 3;
+    // 标题
+    string name = 4;
+    // 描述
+    string desc = 5;
+    // 内容
+    string content = 6;
+    // 作者
+    string author = 7;
+    // markdown
+    string md = 10;
+    // 阅读数
+    int32 read = 14;
+    // like
+    int32 like = 15;
+}
