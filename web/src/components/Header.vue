@@ -7,21 +7,31 @@
           :src="url"
           fit="fill"></el-image>
       </el-col>
-      <el-col :span="10" :offset="8">
+      <el-col :span="5" :offset="8">
         <el-menu :default-active="activeIndex" router class="el-menu-demo" mode="horizontal" @select="handleSelect">
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/list">列表</el-menu-item>
           <el-menu-item index="/info">信息</el-menu-item>
         </el-menu>
       </el-col>
+
+      <el-col :span="4">
+        <div style="height: 60px; line-height: 60px;">
+          <Box></Box>
+        </div>
+      </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+  import Box from "./Box";
 
   export default {
     name: "Header",
+    components: {
+      Box,
+    },
     data() {
       return {
         url: require('../assets/logo.jpg'),

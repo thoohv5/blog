@@ -1,0 +1,135 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/wechat/v1/base/base.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "WeChat"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/wechat/v1/base/qr-code": {
+      "get": {
+        "summary": "二维码.",
+        "operationId": "WeChat_QRCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/baseQRCodeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "expireSeconds",
+            "description": "二维码有效时间，以秒为单位。 最大不超过2592000（即30天），此字段如果不填，则默认有效期为30秒。.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "actionName",
+            "description": "二维码类型.\n\n - QR_SCENE: 临时的整型参数值\n - QR_STR_SCENE: 临时的字符串参数值\n - QR_LIMIT_SCENE: 永久的整型参数值\n - QR_LIMIT_STR_SCENE: 永久的字符串参数值",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "QR_SCENE",
+              "QR_STR_SCENE",
+              "QR_LIMIT_SCENE",
+              "QR_LIMIT_STR_SCENE"
+            ],
+            "default": "QR_SCENE"
+          },
+          {
+            "name": "sceneId",
+            "description": "场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sceneStr",
+            "description": "场景值ID（字符串形式的ID），字符串类型，长度限制为1到64.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WeChat"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "QRCodeReqActionName": {
+      "type": "string",
+      "enum": [
+        "QR_SCENE",
+        "QR_STR_SCENE",
+        "QR_LIMIT_SCENE",
+        "QR_LIMIT_STR_SCENE"
+      ],
+      "default": "QR_SCENE",
+      "title": "- QR_SCENE: 临时的整型参数值\n - QR_STR_SCENE: 临时的字符串参数值\n - QR_LIMIT_SCENE: 永久的整型参数值\n - QR_LIMIT_STR_SCENE: 永久的字符串参数值"
+    },
+    "baseQRCodeResp": {
+      "type": "object",
+      "properties": {
+        "qrCode": {
+          "type": "string",
+          "title": "二维码"
+        }
+      },
+      "description": "二维码 返回值."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

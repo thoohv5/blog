@@ -4,10 +4,12 @@
 </template>
 
 <script>
-
+  import Box from "./Box";
   export default {
     name: "Home",
-    components: {},
+    components: {
+      Box
+    },
     data() {
       return {
         data: "初始化",

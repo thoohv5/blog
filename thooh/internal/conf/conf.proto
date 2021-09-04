@@ -9,6 +9,7 @@ message Bootstrap {
     Server server = 1;
     Data data = 2;
     Assets assets = 3;
+    Wechat wechat = 4;
 }
 
 message Server {
@@ -49,4 +50,11 @@ message Assets {
         string dir = 1;
     }
     Markdown md = 1;
+}
+
+message Wechat {
+    string  app_id = 1;
+    string  app_secret = 2;
+    string  token = 3;
+    string  encoding_aes_key = 4;
 }

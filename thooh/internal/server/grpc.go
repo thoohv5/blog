@@ -9,6 +9,7 @@ import (
 	pbarticle "thooh/api/blog/v1/article"
 	pbcategory "thooh/api/blog/v1/category"
 	pbcommand "thooh/api/common/v1/command"
+	pbbase "thooh/api/wechat/v1/base"
 	"thooh/internal/conf"
 	"thooh/internal/service"
 )
@@ -20,6 +21,7 @@ func NewGRPCServer(
 	categoryService *service.CategoryService,
 	articleService *service.ArticleService,
 	commandService *service.CommandService,
+	chatService *service.WeChatService,
 ) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
@@ -40,5 +42,6 @@ func NewGRPCServer(
 	pbcategory.RegisterCategoryServer(srv, categoryService)
 	pbarticle.RegisterArticleServer(srv, articleService)
 	pbcommand.RegisterCommandServer(srv, commandService)
+	pbbase.RegisterWeChatServer(srv, chatService)
 	return srv
 }

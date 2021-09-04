@@ -15,3 +15,8 @@ data:
 assets:
   md:
     dir: /data/doc
+wechat:
+  app_id: "wx447c62f86c7b84d2"
+  app_secret: "2910d4851d58ca3f3704b88402f4f4ff"
+  token: "123"
+  encoding_aes_key: ""
