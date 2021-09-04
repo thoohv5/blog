@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 
+	pberror "thooh/api/error"
 	"thooh/internal/biz"
 )
 
@@ -57,6 +58,9 @@ func (c *categoryRepo) List(ctx context.Context) ([]*biz.Category, error) {
 
 	ret, err := getList.Result()
 	if nil != err {
+		if redis.Nil == err {
+			return resp, pberror.ErrorDataNotExist("redis LRange err, err:%v", err)
+		}
 		c.log.WithContext(ctx).Errorf("redis LRange err,err:%v", err)
 		return resp, err
 	}
@@ -70,6 +74,10 @@ func (c *categoryRepo) List(ctx context.Context) ([]*biz.Category, error) {
 		}
 		_, err := pipe.Exec(ctx)
 		if nil != err {
+			if redis.Nil == err {
+				return pberror.ErrorDataNotExist("redis HGetAll err, err:%v", err)
+			}
+			c.log.WithContext(ctx).Errorf("redis HGetAll err, err:%v", err)
 			return err
 		}
 		for _, stringStringMapCmd := range cmdList {

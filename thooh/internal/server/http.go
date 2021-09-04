@@ -12,6 +12,7 @@ import (
 	pbarticle "thooh/api/blog/v1/article"
 	pbcategory "thooh/api/blog/v1/category"
 	pbcommand "thooh/api/common/v1/command"
+	pbuser "thooh/api/common/v1/user"
 	pbbase "thooh/api/wechat/v1/base"
 	"thooh/internal/conf"
 	"thooh/internal/service"
@@ -25,6 +26,7 @@ func NewHTTPServer(
 	articleService *service.ArticleService,
 	commandService *service.CommandService,
 	chatService *service.WeChatService,
+	userService *service.UserService,
 ) *http.Server {
 
 	log := klog.NewHelper(logger)
@@ -62,5 +64,6 @@ func NewHTTPServer(
 	pbarticle.RegisterArticleHTTPServer(srv, articleService)
 	pbcommand.RegisterCommandHTTPServer(srv, commandService)
 	pbbase.RegisterWeChatHTTPServer(srv, chatService)
+	pbuser.RegisterUserHTTPServer(srv, userService)
 	return srv
 }

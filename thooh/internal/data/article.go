@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 
+	pberror "thooh/api/error"
 	"thooh/internal/biz"
 )
 
@@ -57,6 +58,9 @@ func (cr *articleRepo) List(ctx context.Context, param *biz.ListParam) ([]*biz.A
 
 	ret, err := getList.Result()
 	if nil != err {
+		if redis.Nil == err {
+			return resp, pberror.ErrorDataNotExist("redis LRange err, err:%v", err)
+		}
 		cr.log.WithContext(ctx).Errorf("redis LRange err,err:%v", err)
 		return resp, err
 	}
@@ -70,6 +74,10 @@ func (cr *articleRepo) List(ctx context.Context, param *biz.ListParam) ([]*biz.A
 		}
 		_, err := pipe.Exec(ctx)
 		if nil != err {
+			if redis.Nil == err {
+				return pberror.ErrorDataNotExist("redis HGetAll err, err:%v", err)
+			}
+			cr.log.WithContext(ctx).Errorf("redis HGetAll err, err:%v", err)
 			return err
 		}
 		for _, stringStringMapCmd := range cmdList {
@@ -90,7 +98,15 @@ func (cr *articleRepo) List(ctx context.Context, param *biz.ListParam) ([]*biz.A
 
 func (cr *articleRepo) Detail(ctx context.Context, code string) (*biz.Article, error) {
 	article := new(biz.Article)
-	return article, cr.data.rdb.HGetAll(ctx, getArticleHashKey(code)).Scan(article)
+	err := cr.data.rdb.HGetAll(ctx, getArticleHashKey(code)).Scan(article)
+	if nil != err {
+		if redis.Nil == err {
+			return article, pberror.ErrorDataNotExist("redis HGetAll err, err:%v", err)
+		}
+		cr.log.WithContext(ctx).Errorf("redis HGetAll err, err:%v", err)
+		return article, err
+	}
+	return article, nil
 }
 
 func getArticleHashKey(code string) string {

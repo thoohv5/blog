@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package common.v1.user;
+
+import "google/api/annotations.proto";
+
+option go_package = "thooh/api/common/v1/user";
+
+// 用户.
+service User {
+    // 登陆.
+    rpc Login (LoginReq) returns (LoginResp)  {
+        option (google.api.http) = {
+            post: "/common/v1/user/login"
+            body: "*"
+        };
+    }
+    // 注册.
+    rpc Register (RegisterReq) returns (RegisterResp)  {
+        option (google.api.http) = {
+            post: "/common/v1/user/register"
+            body: "*"
+        };
+    }
+    // 信息.
+    rpc Info (InfoReq) returns (InfoResp)  {
+        option (google.api.http) = {
+            get: "/common/v1/user/info"
+        };
+    }
+}
+
+// 登陆/注册 类型.
+enum ThirdPartType {
+    LOGIN_TYPE_DEFAULT = 0;
+    // 手机
+    LOGIN_TYPE_PHONE = 1;
+    // 邮箱
+    LOGIN_TYPE_EMAIL = 2;
+    // 微信
+    LOGIN_TYPE_WECHAT = 3;
+}
+
+// 登陆 请求.
+message LoginReq {
+    // 用户登陆
+    message UserLoginParam {
+        // 用户Id
+        string user_code = 1;
+    }
+    // 第三方登陆
+    message ThirdLoginParam {
+        // 类型
+        ThirdPartType third_part_type = 1;
+        // 标识
+        string third_part_code = 2;
+    }
+    oneof Param {
+        UserLoginParam user_login_param = 1;
+        ThirdLoginParam third_login_param = 2;
+    }
+}
+
+// 登陆 返回值.
+message LoginResp {
+    string token = 1;
+}
+
+// 注册 请求.
+message RegisterReq {
+    // 类型
+    ThirdPartType third_part_type = 1;
+    // 标识
+    string third_part_code = 2;
+    // 密码
+    string password = 3;
+}
+
+// 注册 返回值.
+message RegisterResp {
+    // 用户标识
+    string user_code = 1;
+}
+
+// 信息 请求.
+message InfoReq {
+    // 用户标识
+    string user_code = 1;
+}
+
+// 信息 返回值.
+message InfoResp {
+    // 用户标识
+    string user_code = 1;
+    // 密码
+    string password = 2;
+    
+    // 电话
+    string phone = 4;
+    // 邮箱
+    string email = 5;
+    // 微信
+    string wechat_openid = 6;
+    
+    // 头像
+    string portrait = 10;
+    // 昵称
+    string nick_name = 11;
+    // 性别
+    string sex = 12;
+}

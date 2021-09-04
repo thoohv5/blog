@@ -1,0 +1,272 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/common/v1/user/user.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "User"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/common/v1/user/info": {
+      "get": {
+        "summary": "信息.",
+        "operationId": "User_Info",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userInfoResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userCode",
+            "description": "用户标识.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/common/v1/user/login": {
+      "post": {
+        "summary": "登陆.",
+        "operationId": "User_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userLoginResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userLoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/common/v1/user/register": {
+      "post": {
+        "summary": "注册.",
+        "operationId": "User_Register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userRegisterResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userRegisterReq"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "LoginReqThirdLoginParam": {
+      "type": "object",
+      "properties": {
+        "thirdPartType": {
+          "$ref": "#/definitions/userThirdPartType",
+          "title": "类型"
+        },
+        "thirdPartCode": {
+          "type": "string",
+          "title": "标识"
+        }
+      },
+      "title": "第三方登陆"
+    },
+    "LoginReqUserLoginParam": {
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "type": "string",
+          "title": "用户Id"
+        }
+      },
+      "title": "用户登陆"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "userInfoResp": {
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "type": "string",
+          "title": "用户标识"
+        },
+        "password": {
+          "type": "string",
+          "title": "密码"
+        },
+        "phone": {
+          "type": "string",
+          "title": "电话"
+        },
+        "email": {
+          "type": "string",
+          "title": "邮箱"
+        },
+        "wechatOpenid": {
+          "type": "string",
+          "title": "微信"
+        },
+        "portrait": {
+          "type": "string",
+          "title": "头像"
+        },
+        "nickName": {
+          "type": "string",
+          "title": "昵称"
+        },
+        "sex": {
+          "type": "string",
+          "title": "性别"
+        }
+      },
+      "description": "信息 返回值."
+    },
+    "userLoginReq": {
+      "type": "object",
+      "properties": {
+        "userLoginParam": {
+          "$ref": "#/definitions/LoginReqUserLoginParam"
+        },
+        "thirdLoginParam": {
+          "$ref": "#/definitions/LoginReqThirdLoginParam"
+        }
+      },
+      "description": "登陆 请求."
+    },
+    "userLoginResp": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      },
+      "description": "登陆 返回值."
+    },
+    "userRegisterReq": {
+      "type": "object",
+      "properties": {
+        "thirdPartType": {
+          "$ref": "#/definitions/userThirdPartType",
+          "title": "类型"
+        },
+        "thirdPartCode": {
+          "type": "string",
+          "title": "标识"
+        },
+        "password": {
+          "type": "string",
+          "title": "密码"
+        }
+      },
+      "description": "注册 请求."
+    },
+    "userRegisterResp": {
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "type": "string",
+          "title": "用户标识"
+        }
+      },
+      "description": "注册 返回值."
+    },
+    "userThirdPartType": {
+      "type": "string",
+      "enum": [
+        "LOGIN_TYPE_DEFAULT",
+        "LOGIN_TYPE_PHONE",
+        "LOGIN_TYPE_EMAIL",
+        "LOGIN_TYPE_WECHAT"
+      ],
+      "default": "LOGIN_TYPE_DEFAULT",
+      "description": "登陆/注册 类型.\n\n - LOGIN_TYPE_PHONE: 手机\n - LOGIN_TYPE_EMAIL: 邮箱\n - LOGIN_TYPE_WECHAT: 微信"
+    }
+  }
+}
