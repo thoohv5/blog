@@ -5,6 +5,7 @@ import (
 	ghttp "net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/silenceper/wechat/v2"
@@ -26,9 +27,15 @@ type WeChatService struct {
 	officialAccount *officialaccount.OfficialAccount
 	userUsecase     *biz.UserUsecase
 	logger          *log.Helper
+	wechatUsecase   *biz.WechatUsecase
 }
 
-func NewWeChatService(logger log.Logger, c *conf.Wechat, userUsecase *biz.UserUsecase) *WeChatService {
+func NewWeChatService(
+	logger log.Logger,
+	c *conf.Wechat,
+	userUsecase *biz.UserUsecase,
+	wechatUsecase *biz.WechatUsecase,
+) *WeChatService {
 	wc := wechat.NewWechat()
 	// 这里本地内存保存access_token，也可选择redis，memcache或者自定cache
 	memory := cache.NewMemory()
@@ -43,6 +50,7 @@ func NewWeChatService(logger log.Logger, c *conf.Wechat, userUsecase *biz.UserUs
 		officialAccount: wc.GetOfficialAccount(cfg),
 		userUsecase:     userUsecase,
 		logger:          log.NewHelper(logger),
+		wechatUsecase:   wechatUsecase,
 	}
 }
 
@@ -67,10 +75,18 @@ func (s *WeChatService) QRCode(ctx context.Context, req *pb.QRCodeReq) (*pb.QRCo
 		},
 	})
 	if nil != err {
+		s.logger.Errorf("WeChat GetQRTicket err, err:%v", err)
 		return resp, err
 	}
 
 	resp.QrCode = basic.ShowQRCode(ticket)
+
+	// 标记二维码扫描
+	if err := s.wechatUsecase.SetQRCodeStatus(ctx, req.GetSceneStr(), time.Duration(req.GetExpireSeconds())*time.Second); nil != err {
+		s.logger.Errorf("WeChat SetQRCodeStatus err, err:%v", err)
+		return resp, err
+	}
+
 	return resp, nil
 }
 
@@ -93,8 +109,8 @@ func (s *WeChatService) Check(rw ghttp.ResponseWriter, req *ghttp.Request) {
 func (s *WeChatService) WeChat(rw ghttp.ResponseWriter, req *ghttp.Request) error {
 
 	// check
-	// check(rw, req)
-	// return
+	// s.Check(rw, req)
+	// return nil
 
 	// 传入request和responseWriter
 	server := s.officialAccount.GetServer(req, rw)
@@ -118,6 +134,13 @@ func (s *WeChatService) WeChat(rw ghttp.ResponseWriter, req *ghttp.Request) erro
 			// openId
 			openId := msg.GetOpenID()
 
+			// 清空二维码标识
+			if err := s.wechatUsecase.ClearQRCodeStatus(ctx, msg.EventKey); nil != err {
+				s.logger.Errorf("WeChat ClearQRCodeStatus err, err:%v", err)
+				return nil
+			}
+
+			// 创建更新用户
 			if err := s.CreateUpdateUser(ctx, openId); nil != err {
 				s.logger.Errorf("WeChat CreateUpdateUser err, err:%v", err)
 				return nil
@@ -189,4 +212,17 @@ func (s *WeChatService) CreateUpdateUser(ctx context.Context, openId string) err
 	}
 
 	return nil
+}
+
+func (s *WeChatService) CheckQRCode(ctx context.Context, req *pb.CheckQRCodeReq) (*pb.CheckQRCodeResp, error) {
+	resp := new(pb.CheckQRCodeResp)
+
+	ret, err := s.wechatUsecase.CheckQRCodeStatus(ctx, req.GetKey())
+	if nil != err {
+		return resp, err
+	}
+
+	resp.Result = ret
+
+	return resp, nil
 }

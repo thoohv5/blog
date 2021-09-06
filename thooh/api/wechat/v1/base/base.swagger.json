@@ -16,6 +16,37 @@
     "application/json"
   ],
   "paths": {
+    "/wechat/v1/base/check-qr-code": {
+      "get": {
+        "summary": "二维码结果",
+        "operationId": "WeChat_CheckQRCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/baseCheckQRCodeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WeChat"
+        ]
+      }
+    },
     "/wechat/v1/base/qr-code": {
       "get": {
         "summary": "二维码.",
@@ -90,6 +121,15 @@
       ],
       "default": "QR_SCENE",
       "title": "- QR_SCENE: 临时的整型参数值\n - QR_STR_SCENE: 临时的字符串参数值\n - QR_LIMIT_SCENE: 永久的整型参数值\n - QR_LIMIT_STR_SCENE: 永久的字符串参数值"
+    },
+    "baseCheckQRCodeResp": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "boolean"
+        }
+      },
+      "title": "二维码结果 返回值"
     },
     "baseQRCodeResp": {
       "type": "object",

@@ -8,4 +8,5 @@ var ProviderSet = wire.NewSet(
 	NewArticleUsecase,
 	NewFile,
 	NewUserUsecase,
+	NewWechatUsecase,
 )

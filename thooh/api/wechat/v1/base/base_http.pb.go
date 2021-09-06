@@ -19,12 +19,14 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type WeChatHTTPServer interface {
+	CheckQRCode(context.Context, *CheckQRCodeReq) (*CheckQRCodeResp, error)
 	QRCode(context.Context, *QRCodeReq) (*QRCodeResp, error)
 }
 
 func RegisterWeChatHTTPServer(s *http.Server, srv WeChatHTTPServer) {
 	r := s.Route("/")
 	r.GET("/wechat/v1/base/qr-code", _WeChat_QRCode0_HTTP_Handler(srv))
+	r.GET("/wechat/v1/base/check-qr-code", _WeChat_CheckQRCode0_HTTP_Handler(srv))
 }
 
 func _WeChat_QRCode0_HTTP_Handler(srv WeChatHTTPServer) func(ctx http.Context) error {
@@ -46,7 +48,27 @@ func _WeChat_QRCode0_HTTP_Handler(srv WeChatHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _WeChat_CheckQRCode0_HTTP_Handler(srv WeChatHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CheckQRCodeReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/wechat.v1.base.WeChat/CheckQRCode")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CheckQRCode(ctx, req.(*CheckQRCodeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CheckQRCodeResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type WeChatHTTPClient interface {
+	CheckQRCode(ctx context.Context, req *CheckQRCodeReq, opts ...http.CallOption) (rsp *CheckQRCodeResp, err error)
 	QRCode(ctx context.Context, req *QRCodeReq, opts ...http.CallOption) (rsp *QRCodeResp, err error)
 }
 
@@ -56,6 +78,19 @@ type WeChatHTTPClientImpl struct {
 
 func NewWeChatHTTPClient(client *http.Client) WeChatHTTPClient {
 	return &WeChatHTTPClientImpl{client}
+}
+
+func (c *WeChatHTTPClientImpl) CheckQRCode(ctx context.Context, in *CheckQRCodeReq, opts ...http.CallOption) (*CheckQRCodeResp, error) {
+	var out CheckQRCodeResp
+	pattern := "/wechat/v1/base/check-qr-code"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/wechat.v1.base.WeChat/CheckQRCode"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *WeChatHTTPClientImpl) QRCode(ctx context.Context, in *QRCodeReq, opts ...http.CallOption) (*QRCodeResp, error) {

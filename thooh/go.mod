@@ -5,6 +5,8 @@ go 1.15
 require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
+	github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2 v2.0.0-20210906140442-8823a1c61865 // indirect
+	github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2 v2.0.0-20210906140442-8823a1c61865 // indirect
 	github.com/go-kratos/kratos/v2 v2.0.5
 	github.com/go-redis/redis/extra/redisotel v0.3.0
 	github.com/go-redis/redis/v8 v8.11.3
@@ -12,6 +14,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/handlers v1.5.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.5.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/silenceper/wechat/v2 v2.0.6
@@ -23,5 +26,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20210831024726-fe130286e0e2
 	google.golang.org/grpc v1.40.0
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0 // indirect
 	google.golang.org/protobuf v1.27.1
 )

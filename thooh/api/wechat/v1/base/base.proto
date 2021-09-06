@@ -15,6 +15,12 @@ service WeChat {
             get: "/wechat/v1/base/qr-code"
         };
     }
+    // 二维码结果
+    rpc CheckQRCode (CheckQRCodeReq) returns (CheckQRCodeResp) {
+        option (google.api.http) = {
+            get: "/wechat/v1/base/check-qr-code"
+        };
+    }
 }
 
 // 二维码 请求.
@@ -45,4 +51,13 @@ message QRCodeReq {
 message QRCodeResp {
     // 二维码
     string qr_code = 1;
+}
+
+// 二维码结果 请求
+message CheckQRCodeReq {
+    string key = 1;
+}
+// 二维码结果 返回值
+message CheckQRCodeResp {
+    bool result = 2;
 }

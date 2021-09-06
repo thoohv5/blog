@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 type WeChatClient interface {
 	// 二维码.
 	QRCode(ctx context.Context, in *QRCodeReq, opts ...grpc.CallOption) (*QRCodeResp, error)
+	// 二维码结果
+	CheckQRCode(ctx context.Context, in *CheckQRCodeReq, opts ...grpc.CallOption) (*CheckQRCodeResp, error)
 }
 
 type weChatClient struct {
@@ -40,12 +42,23 @@ func (c *weChatClient) QRCode(ctx context.Context, in *QRCodeReq, opts ...grpc.C
 	return out, nil
 }
 
+func (c *weChatClient) CheckQRCode(ctx context.Context, in *CheckQRCodeReq, opts ...grpc.CallOption) (*CheckQRCodeResp, error) {
+	out := new(CheckQRCodeResp)
+	err := c.cc.Invoke(ctx, "/wechat.v1.base.WeChat/CheckQRCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WeChatServer is the server API for WeChat service.
 // All implementations must embed UnimplementedWeChatServer
 // for forward compatibility
 type WeChatServer interface {
 	// 二维码.
 	QRCode(context.Context, *QRCodeReq) (*QRCodeResp, error)
+	// 二维码结果
+	CheckQRCode(context.Context, *CheckQRCodeReq) (*CheckQRCodeResp, error)
 	mustEmbedUnimplementedWeChatServer()
 }
 
@@ -55,6 +68,9 @@ type UnimplementedWeChatServer struct {
 
 func (UnimplementedWeChatServer) QRCode(context.Context, *QRCodeReq) (*QRCodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QRCode not implemented")
+}
+func (UnimplementedWeChatServer) CheckQRCode(context.Context, *CheckQRCodeReq) (*CheckQRCodeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckQRCode not implemented")
 }
 func (UnimplementedWeChatServer) mustEmbedUnimplementedWeChatServer() {}
 
@@ -87,6 +103,24 @@ func _WeChat_QRCode_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WeChat_CheckQRCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckQRCodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WeChatServer).CheckQRCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/wechat.v1.base.WeChat/CheckQRCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WeChatServer).CheckQRCode(ctx, req.(*CheckQRCodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WeChat_ServiceDesc is the grpc.ServiceDesc for WeChat service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -97,6 +131,10 @@ var WeChat_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QRCode",
 			Handler:    _WeChat_QRCode_Handler,
+		},
+		{
+			MethodName: "CheckQRCode",
+			Handler:    _WeChat_CheckQRCode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

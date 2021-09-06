@@ -185,3 +185,137 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = QRCodeRespValidationError{}
+
+// Validate checks the field values on CheckQRCodeReq with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *CheckQRCodeReq) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Key
+
+	return nil
+}
+
+// CheckQRCodeReqValidationError is the validation error returned by
+// CheckQRCodeReq.Validate if the designated constraints aren't met.
+type CheckQRCodeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckQRCodeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckQRCodeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckQRCodeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckQRCodeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckQRCodeReqValidationError) ErrorName() string { return "CheckQRCodeReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CheckQRCodeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckQRCodeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckQRCodeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckQRCodeReqValidationError{}
+
+// Validate checks the field values on CheckQRCodeResp with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *CheckQRCodeResp) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Result
+
+	return nil
+}
+
+// CheckQRCodeRespValidationError is the validation error returned by
+// CheckQRCodeResp.Validate if the designated constraints aren't met.
+type CheckQRCodeRespValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckQRCodeRespValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckQRCodeRespValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckQRCodeRespValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckQRCodeRespValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckQRCodeRespValidationError) ErrorName() string { return "CheckQRCodeRespValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CheckQRCodeRespValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckQRCodeResp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckQRCodeRespValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckQRCodeRespValidationError{}
