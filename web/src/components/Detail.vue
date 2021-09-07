@@ -43,7 +43,10 @@
 
 <style>
   @import '../../static/css/markdown.css';
-
+  #detail {
+    width: 60%;
+    margin: 0 auto;
+  }
   #detail .el-page-header {
     margin: 20px 0;
   }

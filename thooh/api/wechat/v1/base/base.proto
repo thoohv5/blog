@@ -60,4 +60,5 @@ message CheckQRCodeReq {
 // 二维码结果 返回值
 message CheckQRCodeResp {
     bool result = 2;
+    string extra = 3;
 }

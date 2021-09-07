@@ -5,11 +5,13 @@ import router from "./router";
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
+import base from './base'
 
 import App from './App'
 import axios from "axios";
 
 Vue.use(ElementUI);
+Vue.use(base);
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios

@@ -263,6 +263,8 @@ func (m *CheckQRCodeResp) Validate() error {
 
 	// no validation rules for Result
 
+	// no validation rules for Extra
+
 	return nil
 }
 

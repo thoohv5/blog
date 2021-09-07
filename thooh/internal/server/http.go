@@ -49,6 +49,7 @@ func NewHTTPServer(
 	opts = append(opts, http.Filter(handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "POST"}),
+		handlers.AllowedHeaders([]string{"Content-Type"}),
 	)))
 	srv := http.NewServer(opts...)
 

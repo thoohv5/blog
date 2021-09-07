@@ -30,7 +30,7 @@
 </script>
 
 
-<style scoped>
+<style>
   #info{
     height: 1000px;
   }

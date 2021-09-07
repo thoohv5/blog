@@ -1,13 +1,16 @@
 <template>
   <div id="home">
+    <Carousel></Carousel>
   </div>
 </template>
 
 <script>
   import Box from "./Box";
+  import Carousel from "./Carousel";
   export default {
     name: "Home",
     components: {
+      Carousel,
       Box
     },
     data() {
@@ -20,5 +23,5 @@
 </script>
 
 
-<style scoped>
+<style>
 </style>

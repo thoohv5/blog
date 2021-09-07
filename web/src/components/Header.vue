@@ -16,7 +16,7 @@
       </el-col>
 
       <el-col :span="4">
-        <div style="height: 60px; line-height: 60px;">
+        <div style="height: 60px; line-height: 60px;text-align: left;">
           <Box></Box>
         </div>
       </el-col>
@@ -62,7 +62,7 @@
 </script>
 
 
-<style scoped>
+<style >
   #header {
 
   }

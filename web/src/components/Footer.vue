@@ -1,24 +1,27 @@
 <template>
-  <div id="home">
+  <div id="footer">
+    <ul class="footer-links">
+      <section class="copyright"><a href="https://thooh.com">速虎前沿</a> © 2014 - 2021 | <a
+        href="http://www.beian.miit.gov.cn" target="_blank">蜀ICP备2020036949号-1</a></section>
+    </ul>
   </div>
 </template>
 
 <script>
-  import Box from "./Box";
   export default {
-    name: "Home",
-    components: {
-      Box
-    },
+    name: "Footer",
+    components: {},
     data() {
-      return {
-        data: "初始化",
-      }
+      return {}
     },
     methods: {}
   }
 </script>
 
 
-<style scoped>
+<style >
+  #footer {
+    text-align: center;
+    margin: 60px 0 40px 0;
+  }
 </style>

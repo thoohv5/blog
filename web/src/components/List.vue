@@ -73,10 +73,17 @@
 </script>
 
 
-<style scoped>
+<style>
+  .list {
+    width: 60%;
+    margin: 0 auto;
+  }
+
   .list p {
+    padding-top: 40px;
     text-align: center;
   }
+
   .posts-list {
     flex-grow: 1;
     margin: 0;

@@ -82,7 +82,7 @@ func (s *WeChatService) QRCode(ctx context.Context, req *pb.QRCodeReq) (*pb.QRCo
 	resp.QrCode = basic.ShowQRCode(ticket)
 
 	// 标记二维码扫描
-	if err := s.wechatUsecase.SetQRCodeStatus(ctx, req.GetSceneStr(), time.Duration(req.GetExpireSeconds())*time.Second); nil != err {
+	if err := s.wechatUsecase.SetQRCodeStatus(ctx, req.GetSceneStr(), true, time.Duration(req.GetExpireSeconds())*time.Second); nil != err {
 		s.logger.Errorf("WeChat SetQRCodeStatus err, err:%v", err)
 		return resp, err
 	}
@@ -90,7 +90,7 @@ func (s *WeChatService) QRCode(ctx context.Context, req *pb.QRCodeReq) (*pb.QRCo
 	return resp, nil
 }
 
-func (s *WeChatService) Check(rw ghttp.ResponseWriter, req *ghttp.Request) {
+func (s *WeChatService) Check(rw ghttp.ResponseWriter, req *ghttp.Request) bool {
 	m := make(map[string]string)
 	mp := strings.FieldsFunc(req.URL.RawQuery, func(r rune) bool {
 		if r == '=' || r == '&' {
@@ -103,14 +103,15 @@ func (s *WeChatService) Check(rw ghttp.ResponseWriter, req *ghttp.Request) {
 	}
 	// rw.WriteHeader(200)
 	rw.Write([]byte(m["echostr"]))
-	return
+	return len(m["echostr"]) > 0
 }
 
 func (s *WeChatService) WeChat(rw ghttp.ResponseWriter, req *ghttp.Request) error {
 
 	// check
-	// s.Check(rw, req)
-	// return nil
+	if s.Check(rw, req) {
+		return nil
+	}
 
 	// 传入request和responseWriter
 	server := s.officialAccount.GetServer(req, rw)
@@ -134,17 +135,23 @@ func (s *WeChatService) WeChat(rw ghttp.ResponseWriter, req *ghttp.Request) erro
 			// openId
 			openId := msg.GetOpenID()
 
-			// 清空二维码标识
-			if err := s.wechatUsecase.ClearQRCodeStatus(ctx, msg.EventKey); nil != err {
-				s.logger.Errorf("WeChat ClearQRCodeStatus err, err:%v", err)
-				return nil
-			}
-
 			// 创建更新用户
 			if err := s.CreateUpdateUser(ctx, openId); nil != err {
 				s.logger.Errorf("WeChat CreateUpdateUser err, err:%v", err)
 				return nil
 			}
+
+			// 清空二维码标识
+			if err := s.wechatUsecase.ClearQRCodeStatus(ctx, msg.EventKey, openId); nil != err {
+				s.logger.Errorf("WeChat ClearQRCodeStatus err, err:%v", err)
+				return nil
+			}
+
+			s.officialAccount.GetCustomerMessageManager().Send(&message.CustomerMessage{
+				ToUser:  openId,
+				Msgtype: message.MsgTypeText,
+				Text:    &message.MediaText{Content: "欢迎关注速虎前沿，大家做朋友吧！！"},
+			})
 
 			return nil
 		}
@@ -217,12 +224,13 @@ func (s *WeChatService) CreateUpdateUser(ctx context.Context, openId string) err
 func (s *WeChatService) CheckQRCode(ctx context.Context, req *pb.CheckQRCodeReq) (*pb.CheckQRCodeResp, error) {
 	resp := new(pb.CheckQRCodeResp)
 
-	ret, err := s.wechatUsecase.CheckQRCodeStatus(ctx, req.GetKey())
+	state, extra, err := s.wechatUsecase.CheckQRCodeStatus(ctx, req.GetKey())
 	if nil != err {
 		return resp, err
 	}
 
-	resp.Result = ret
+	resp.Result = state
+	resp.Extra = extra
 
 	return resp, nil
 }

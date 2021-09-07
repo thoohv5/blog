@@ -58,9 +58,9 @@ func (u *userRepo) Update(ctx context.Context, bu *biz.User) error {
 	oldBu := new(biz.User)
 	if err := u.data.rdb.HGetAll(ctx, userHashKey).Scan(oldBu); nil != err {
 		if redis.Nil == err {
-			return pberror.ErrorDataNotExist("redis HMGet err, err:%v", err)
+			return pberror.ErrorDataNotExist("redis HGetAll err, err:%v", err)
 		}
-		u.log.WithContext(ctx).Errorf("redis HMGet err, err:%v", err)
+		u.log.WithContext(ctx).Errorf("redis HGetAll err, err:%v", err)
 		return err
 	}
 
@@ -73,6 +73,10 @@ func (u *userRepo) Update(ctx context.Context, bu *biz.User) error {
 		if newBu := bcVal.Field(i).Interface(); !reflect.DeepEqual(newBu, oldBcVal.Field(i).Interface()) {
 			kv[bcType.Field(i).Tag.Get("redis")] = newBu
 		}
+	}
+
+	if len(kv) == 0 {
+		return nil
 	}
 
 	// 赋值
